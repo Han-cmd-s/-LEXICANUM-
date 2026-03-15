@@ -211,9 +211,9 @@ public class Lexicanum
           bok.AntallEksemplarer--;
             
           if (bok.AntallEksemplarer == 0) bok.ErUtlånt = true; // Oppdaterer status til utlånt hvis det ikke er flere eksemplarer igjen
-          UtlånsHistorikk.Add($"[LOAN] {bruker.Navn} borrowed '{bok.Tittel}' at {DateTime.Now}"); // for historikk av lån
+          UtlånsHistorikk.Add($"[LOAN] {bruker.Navn} borrowed '{bok.Tittel}' at {DateTime.Now}"); // for historikk av lån DateTime.Now for å registrere når boken ble lånt ut
 
-            Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' DISTRIBUTED TO {bruker.Navn}."); // Viser at boken er lånt ut til brukeren
+          Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' DISTRIBUTED TO {bruker.Navn}."); // Viser at boken er lånt ut til brukeren
           Console.WriteLine($">>> COPIES REMAINING: {bok.AntallEksemplarer}"); 
          }
      }
@@ -229,7 +229,7 @@ public class Lexicanum
 
        //Oppdaterer status til ikke utlånt hvis det nå er eksemplarer tilgjengelig igjen
        bok.ErUtlånt = false;
-       UtlånsHistorikk.Add($"[RETURN] {bruker.Navn} returned '{bok.Tittel}' at {DateTime.Now}"); //registrerer historikk retur
+       UtlånsHistorikk.Add($"[RETURN] {bruker.Navn} returned '{bok.Tittel}' at {DateTime.Now}"); //registrerer historikk retur DateTime.Now for å registrere når boken ble returnert
 
        Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' returned by {bruker.Navn}.");
        Console.WriteLine($">>> COPIES NOW IN ARCHIVE: {bok.AntallEksemplarer}");
@@ -240,19 +240,19 @@ public class Lexicanum
        }
      }
 
-    public void VisHistorikk() 
+    public void VisHistorikk()  //lagt til historikk for å lese av når og av hvem boken er utlånt ilag med tidligere kommandoer om lån og retur. Dette gir en oversikt over transaksjonshistorikken i arkivet.
     {
         Console.WriteLine("=== ARCHIVAL LOGS: TRANSACTION HISTORY ===");
         if (UtlånsHistorikk.Count == 0)
         {
-            Console.WriteLine(">>> NO RECORDS FOUND IN THE ARCHIVES.");
+        Console.WriteLine(">>> NO RECORDS FOUND IN THE ARCHIVES.");
         }
         else
         {
-            foreach (var entry in UtlånsHistorikk)
-            {
-                Console.WriteLine(entry);
-            }
+          foreach (var entry in UtlånsHistorikk)
+          {
+           Console.WriteLine(entry);
+           }
         }
     }
 }
