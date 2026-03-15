@@ -128,13 +128,26 @@ class Program
                                 break;
 
                             case "5":
-                                Console.WriteLine(">>> ENTER SEARCH QUERY FOR DATA SLATES: (Press enter for all books)"); // Spør brukeren om en søkestreng for å søke etter bøker, og deretter kaller SearchBøker-metoden i Lexicanum-klassen for å få og vise søkeresultatene
-                                string searchBøker = Console.ReadLine();
-                                Console.WriteLine(">>> SEARCH RESULTS:");
+                                Console.WriteLine(">>> [1] SEARCH FOR DATA SLATES | [2] VIE LOAN LOGS."); //valg av hva som ønskes
+                                string arkivValg = Console.ReadLine();
 
-                                string searchResults = system.SearchBøker(searchBøker);
-                                Console.WriteLine(searchResults);
-                                Console.WriteLine(">>> END OF SEARCH.");
+                                if (arkivValg == "2") //kunn 2 valg derfor kan dette gjøres simpelt med if/else
+                                {
+                                    // Viser historikken av bøkene (utlån)
+                                    system.VisHistorikk();
+                                }
+                                else
+                                {
+                                    // søk etter bøker
+                                    Console.WriteLine(">>> ENTER SEARCH FOR DATA SLATE (Press enter for all books):");
+                                    string searchBøker = Console.ReadLine();
+                                    Console.WriteLine(">>> SEARCH RESULTS:");
+                                    string searchResults = system.SearchBøker(searchBøker);
+                                    Console.WriteLine(searchResults);
+                                    Console.WriteLine(">>> END OF SEARCH.");
+                                }
+
+                                Console.WriteLine("\n>>> PRESS ENTER TO RETURN TO TERMINAL");
                                 Console.ReadLine();
                                 break;
 

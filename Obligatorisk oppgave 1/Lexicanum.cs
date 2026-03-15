@@ -21,6 +21,7 @@ public class Lexicanum
     public List<Bok> AlleBøker = new List<Bok>();
     public List<Lærer> AlleLærere = new List<Lærer>();
     public List<Student> AlleStudenter = new List<Student>();
+    public List<string> UtlånsHistorikk = new List<string>();
 
     public Lexicanum()
     {
@@ -210,8 +211,9 @@ public class Lexicanum
           bok.AntallEksemplarer--;
             
           if (bok.AntallEksemplarer == 0) bok.ErUtlånt = true; // Oppdaterer status til utlånt hvis det ikke er flere eksemplarer igjen
+          UtlånsHistorikk.Add($"[LOAN] {bruker.Navn} borrowed '{bok.Tittel}' at {DateTime.Now}"); // for historikk av lån
 
-          Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' DISTRIBUTED TO {bruker.Navn}."); // Viser at boken er lånt ut til brukeren
+            Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' DISTRIBUTED TO {bruker.Navn}."); // Viser at boken er lånt ut til brukeren
           Console.WriteLine($">>> COPIES REMAINING: {bok.AntallEksemplarer}"); 
          }
      }
@@ -227,6 +229,7 @@ public class Lexicanum
 
        //Oppdaterer status til ikke utlånt hvis det nå er eksemplarer tilgjengelig igjen
        bok.ErUtlånt = false;
+       UtlånsHistorikk.Add($"[RETURN] {bruker.Navn} returned '{bok.Tittel}' at {DateTime.Now}"); //registrerer historikk retur
 
        Console.WriteLine($">>> SUCCESS: '{bok.Tittel}' returned by {bruker.Navn}.");
        Console.WriteLine($">>> COPIES NOW IN ARCHIVE: {bok.AntallEksemplarer}");
@@ -236,5 +239,21 @@ public class Lexicanum
        Console.WriteLine(">>> ERROR: Could not return book. Check ID or Title.");
        }
      }
- }
+
+    public void VisHistorikk() 
+    {
+        Console.WriteLine("=== ARCHIVAL LOGS: TRANSACTION HISTORY ===");
+        if (UtlånsHistorikk.Count == 0)
+        {
+            Console.WriteLine(">>> NO RECORDS FOUND IN THE ARCHIVES.");
+        }
+        else
+        {
+            foreach (var entry in UtlånsHistorikk)
+            {
+                Console.WriteLine(entry);
+            }
+        }
+    }
+}
 
