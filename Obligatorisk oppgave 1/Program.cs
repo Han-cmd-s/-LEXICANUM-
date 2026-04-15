@@ -32,6 +32,7 @@ class Program
 
         while (innloggetbruker == null)
         {
+            Console.Clear();
             Console.WriteLine("[1] LOGIN<");
             Console.WriteLine("[2] REGISTER INTO THE SYSTEM<");
             string loginValg = Console.ReadLine();
@@ -72,7 +73,7 @@ class Program
                 if (string.IsNullOrWhiteSpace(nyttNavn))
                 {
                     Console.WriteLine(">>> ERROR: Name cannot be empty. Please try again.");
-                    return;
+                    continue;
                 }
                 Console.WriteLine(">>> ENTER COMM-LINK (E-mail):");
                 string nyEpost = Console.ReadLine();
@@ -99,7 +100,7 @@ class Program
                 else
                 {
                     Console.WriteLine(">>> INVALID ROLE SELECTED. PLEASE SELECT [1] OR [2].");
-                    return;
+                    continue;
                 }
                 Console.WriteLine(">>> REGISTRATION SUCCESSFUL. YOU CAN NOW LOGIN WITH YOUR NEW CREDENTIALS.");
                 Console.WriteLine(">>> PRESS ENTER TO RETURN TO LOGIN SCREEN...");
