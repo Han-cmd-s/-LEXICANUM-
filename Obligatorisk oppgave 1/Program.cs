@@ -8,6 +8,7 @@ using System.Linq;
 namespace Obligatorisk_oppgave_1;
 
 /// <summary>
+/// v0.1
 /// AI brukt for Feilsøking under koding samt anbefallinger og informasjons søking om anbefalinger.
 /// koden er planlagt og skrevet i forhold til Oppgaveteksten.
 /// 
@@ -15,6 +16,8 @@ namespace Obligatorisk_oppgave_1;
 /// Forsøke bestod av å bruke kode som skulle legge til S for student før ID, (og L for lærer) dette endte opp med å ikke fungere som jeg ønsket, og jeg endte opp med å bruke int for ID, og heller legge til 1000 for lærere, og 2000 for studenter. 
 /// Dette fungerte bedre, og var enklere å implementere i forhold til å finne brukere basert på ID senere i koden.
 /// 
+/// v0.2
+/// Implementert innloggings system
 /// </summary>
 class Program
 {
@@ -56,13 +59,21 @@ class Program
             }
             else if (loginValg == "2")
             {
-                Console.WriteLine(">>> SELECT ROLE TO REGISTER:");
-                Console.WriteLine("[1] Acolyte (Student)");
-                Console.WriteLine("[2] Adept (Employee)");
-                string typeValg = Console.ReadLine();
+                string typeValg = ""; 
+
+                while (typeValg != "1" && typeValg != "2")
+                {
+                    Console.WriteLine(">>> SELECT ROLE TO REGISTER: [1] Acolyte (Student) [2] Adept (Ansatt)");
+                    typeValg = Console.ReadLine(); 
+                }
 
                 Console.WriteLine(">>> ENTER NAME:");
                 string nyttNavn = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(nyttNavn))
+                {
+                    Console.WriteLine(">>> ERROR: Name cannot be empty. Please try again.");
+                    return;
+                }
                 Console.WriteLine(">>> ENTER COMM-LINK (E-mail):");
                 string nyEpost = Console.ReadLine();
                 Console.WriteLine(">>> ENTER ACCESS KEY");
@@ -70,26 +81,34 @@ class Program
 
                 if (typeValg == "2")
                 {
-                    Console.WriteLine(">>> ENTER DESIGNATION (stilling):");
+                    Console.WriteLine(">>> ENTER DESIGNATION (stilling):"); //kan per nå skrive hva som helst default "faglærer"
+
                     string stilling = Console.ReadLine();
                     Console.WriteLine(">>> ENTER DEPARTMENT (Avdeling):");
+
                     string avdeling = Console.ReadLine();
                     
                     int nyID = system.AlleLærere.Max(l => l.Id) + 1; // Genererer en ny ID for den ansatte ved å finne den høyeste eksisterende ID i listen over lærere og legge til 1
                     system.RegistrerAnsatt(nyID, nyttNavn, nyEpost, nyttPassord, stilling, avdeling); // Kaller RegistrerAnsatt-metoden i Lexicanum-klassen for å legge til den nye ansatte i systemet
                 }
-                else
+                else if (typeValg == "1")
                 {
                     int nyID = system.AlleStudenter.Max(s => s.Id) + 1; // Genererer en ny ID for studenten ved å finne den høyeste eksisterende ID i listen over studenter og legge til 1
                     system.RegistrerStudent(nyID, nyttNavn, nyEpost, nyttPassord); // Kaller RegistrerStudent-metoden i Lexicanum-klassen for å legge til den nye studenten i systemet
                 }
+                else
+                {
+                    Console.WriteLine(">>> INVALID ROLE SELECTED. PLEASE SELECT [1] OR [2].");
+                    return;
+                }
                 Console.WriteLine(">>> REGISTRATION SUCCESSFUL. YOU CAN NOW LOGIN WITH YOUR NEW CREDENTIALS.");
                 Console.WriteLine(">>> PRESS ENTER TO RETURN TO LOGIN SCREEN...");
                 Console.ReadKey();
+                
             }
             else
             {
-                Console.WriteLine(">>> INVALID OPTION. PLEASE SELECT 1 OR 2.");
+                Console.WriteLine(">>> INVALID OPTION. PLEASE SELECT [1] OR [2].");
             }
         }
 
@@ -98,15 +117,15 @@ class Program
         while (fortsett) //starter en while-løkke som fortsetter å kjøre så lenge fortsett er true, og brytes når brukeren velger å avslutte programmet ved å skrive "0"
         {
             Console.WriteLine("=== ACCESSING LEXICANUM TERMINAL ==="); //menyen er skrevet er fantasert for å gi en mer intressang og tematisk opplevelse da jeg jobbet med koden, og for å gjøre det mer engasjerende for meg selv, og forhåpentligvis også for å gjøre det litt  morsomt for andre.
-            Console.WriteLine("[1] Register New Study Protocol (OpprettKurs)");
-            Console.WriteLine("[2] Acolytes to and from Protocols (Sett Student inn i Kurs eller meld dem ut)");
-            Console.WriteLine("[] Manifest: Display Protocols & Initiates (Vis deltakere og Kurs)"); //slå sammen 3 og 4
-            Console.WriteLine("[3] Query Protocol Database (Vis Kurs & søk Kurs)");
+            Console.WriteLine("[1] Register New Study Protocol [ONLY ACCESIBLE FOR ADEPTS]  (OpprettKurs)"); //lærer only
+            Console.WriteLine("[2] Acolytes to and from Protocols (Sett Student inn i Kurs eller meld dem ut)"); //student only (husk å legg til kun innlogget student kan melde seg av kurs, og ingen andre kan melde av andre studenter)
+            Console.WriteLine("[3] Manifest: Display Protocols & Initiates || Query Protocol Database (Vis deltakere og Kurs)");
             Console.WriteLine("[4] Search Data slates (Bøker)");
             Console.WriteLine("[5] Request Data Disbursement (Låne bok)");
             Console.WriteLine("[6] Return Data slate to Archives (Returner bok)");
-            Console.WriteLine("[7] Catalog New Knowledge (Registrer bok)");
-            Console.WriteLine("[8] Register new User. (legg til student, utvekslings student, lærer)");
+            Console.WriteLine("[7] REVIEW DATA SLATE LOGS [ONLY ACCESIBLE FOR BIBLIOTHECARIUS] (Vis Historikk)");
+            Console.WriteLine("[8] Catalog New Knowledge [ONLY ACCESIBLE FOR BIBLIOTHECARIUS] (Registrer bok)"); //Bibliotekar only
+            Console.WriteLine("[9] Register new User. (legg til student, utvekslings student, lærer)"); //lærer only
             Console.WriteLine("[0] Terminate Session (avslutt)");
             Console.WriteLine(">>> ENTER COMMAND:");
 
@@ -125,19 +144,28 @@ class Program
                         switch (input) // Switch-case struktur for å håndtere de forskjellige kommandoene basert på brukerens input, og kaller de respektive metodene i Lexicanum-klassen
                         {
                             case "1":
-                                Console.WriteLine(">>> ENTER COURSE CODE (NUMBER):");
-                                if (int.TryParse(Console.ReadLine(), out int kode)) // Validering av input for å sikre at det er et gyldig tall for kurskode, og deretter spør om resten av informasjonen for å registrere et nytt kurs
+                                if (innloggetbruker.Rolle != "FagLærer")
                                 {
-                                    Console.WriteLine(">>> ENTER COURSE NAME:");
-                                    string navn = Console.ReadLine();
-                                    Console.WriteLine(">>> ENTER COURSE POINTS:");
-                                    int poeng = int.Parse(Console.ReadLine());
-                                    Console.WriteLine(">>> ENTER MAX ENROLLMENT:");
-                                    int maks = int.Parse(Console.ReadLine());
-                                    system.RegistrerKurs(kode, navn, poeng, maks);
-                                    Console.WriteLine(">>> COURSE SUCCESSFULLY REGISTERED.");
+                                    Console.WriteLine(">>> ACCESS DENIED. ONLY ADEPTS CAN REGISTER NEW STUDY PROTOCOLS.");
+                                    break;
                                 }
-                                break;
+                                else
+                                {
+                                    Console.WriteLine($"ACCESS GRANTED. WELCOME {innloggetbruker.Navn} ");
+                                    Console.WriteLine(">>> ENTER COURSE CODE (NUMBER):");
+                                    if (int.TryParse(Console.ReadLine(), out int kode)) // Validering av input for å sikre at det er et gyldig tall for kurskode, og deretter spør om resten av informasjonen for å registrere et nytt kurs
+                                    {
+                                        Console.WriteLine(">>> ENTER COURSE NAME:");
+                                        string navn = Console.ReadLine();
+                                        Console.WriteLine(">>> ENTER COURSE POINTS:");
+                                        int poeng = int.Parse(Console.ReadLine());
+                                        Console.WriteLine(">>> ENTER MAX ENROLLMENT:");
+                                        int maks = int.Parse(Console.ReadLine());
+                                        system.RegistrerKurs(kode, navn, poeng, maks);
+                                        Console.WriteLine(">>> COURSE SUCCESSFULLY REGISTERED.");
+                                    }
+                                    break;
+                                }
 
                             case "2":
                                 Console.WriteLine(">>> [1] Assign Acolyte to Protocol | [2] Remove Acolyte from Protocol"); // Spør brukeren om de vil tildele en student til et kurs eller melde dem av et kurs, og deretter spør om nødvendig informasjon for å utføre den valgte handlingen, og kaller de respektive metodene i Lexicanum-klassen for å håndtere tildeling eller avmelding
@@ -175,41 +203,49 @@ class Program
                                 }
                                 break;
 
-                            case "":
-                                Console.WriteLine("=== AVAILABLE PROTOCOLS ==="); // Viser en liste over alle tilgjengelige kurs/protokoller ved å kalle VisKurs-metoden i Lexicanum-klassen, og deretter viser en liste over alle tilgjengelige acolytes/studenter ved å kalle VisstudentListe
-                                string kursListe = system.VisKurs();
-                                Console.WriteLine(kursListe);
-
-                                Console.WriteLine("=== AVAILABLE ACOLYTES ===");
-                                string studentListe = system.VisstudentListe();
-                                Console.WriteLine(studentListe);
-
-                                Console.WriteLine("=== ASSIGNED ACOLYTES TO PROTOCOLS ===");
-                                system.VisTildelinger();
-
-                                Console.WriteLine(">>> PRESS ENTER TO RETURN TO TERMINAL");
-                                Console.ReadLine();
-                                break;
-
                             case "3":
-                                Console.WriteLine("=== ALL AVAILABLE COURSES ===");
-                                Console.WriteLine(">>> ENTER COURSE CODE TO SEARCH (Press enter for all courses):");
+                                
+                                Console.WriteLine(">>> ENTER COURSE CODE TO SEARCH, ENTER [1] FOR ALL COURSES AND ASSIGNED ACOLYTES. ENTER [2] TO RETURN");
                                 string kursSøk = Console.ReadLine();
 
-                                Console.WriteLine("<<COURSE RETREIVAL PROTOCOL INITIATED>>");
-                                //LINQ system for søk av kurs beholder funksjonen med å vise en liste over kurs også.
-                                var kursTreff = system.AlleKurs.Where(k =>
-                                string.IsNullOrEmpty(kursSøk) || k.Navn.Contains(kursSøk, StringComparison.OrdinalIgnoreCase) || k.Kode.ToString() == kursSøk).ToList();
-
-                                if (!kursTreff.Any())
+                                if (kursSøk == "2")
                                 {
-                                    Console.WriteLine(">>> ERROR: NO COURSES MATCHING YOUR CRITERIA.");
+                                    Console.WriteLine(">>> RETURNING TO TERMINAL...");
+                                    break;
+                                }
+
+                                else if (kursSøk == "1")
+                                {
+                                    Console.WriteLine(">>> DISPLAYING ALL COURSES...");
+                                    Console.WriteLine("=== AVAILABLE PROTOCOLS ==="); // Viser en liste over alle tilgjengelige kurs/protokoller ved å kalle VisKurs-metoden i Lexicanum-klassen, og deretter viser en liste over alle tilgjengelige acolytes/studenter ved å kalle VisstudentListe
+                                    Console.WriteLine(system.VisKurs());
+
+                                    Console.WriteLine("=== AVAILABLE ACOLYTES ===");
+                                    string studentListe = system.VisstudentListe();
+                                    Console.WriteLine(studentListe);
+
+                                    Console.WriteLine("=== ASSIGNED ACOLYTES TO PROTOCOLS ===");
+                                    system.VisTildelinger();
+
+                                    Console.WriteLine("=== ALL AVAILABLE COURSES ===");
                                 }
                                 else
                                 {
-                                    foreach (var k in kursTreff)
+                                    Console.WriteLine("<<COURSE RETREIVAL PROTOCOL INITIATED>>");
+                                    //LINQ system for søk av kurs beholder funksjonen med å vise en liste over kurs også.
+                                    var kursTreff = system.AlleKurs.Where(k =>
+                                    string.IsNullOrEmpty(kursSøk) || k.Navn.Contains(kursSøk, StringComparison.OrdinalIgnoreCase) || k.Kode.ToString() == kursSøk).ToList();
+
+                                    if (!kursTreff.Any())
                                     {
-                                        Console.WriteLine($"[{k.Kode}] {k.Navn} - {k.Poeng} poeng (Max: {k.MaksStudenter})");
+                                        Console.WriteLine(">>> ERROR: NO COURSES MATCHING YOUR CRITERIA.");
+                                    }
+                                    else
+                                    {
+                                        foreach (var k in kursTreff)
+                                        {
+                                            Console.WriteLine($"[{k.Kode}] {k.Navn} - {k.Poeng} poeng (Max: {k.MaksStudenter})");
+                                        }
                                     }
                                 }
 
@@ -271,37 +307,62 @@ class Program
                                 break;
 
                             case "7":
-                                Console.WriteLine(">>> ENTER NEWLY FOUND DATA SLATE TITLE:"); // Spør brukeren om informasjon for å registrere en ny bok i systemet, inkludert tittel, forfatter, utgivelsesår, ISBN og antall eksemplarer, og deretter kaller RegistrerBok-metoden i Lexicanum-klassen for å legge til boken i systemet
-                                string nyBokTittel = Console.ReadLine();
-
-                                Console.WriteLine(">>> ENTER AUTHOR:");
-                                string nyBokForfatter = Console.ReadLine();
-
-                                Console.WriteLine(">>> ENTER YEAR:");
-                                string nyBokÅr = Console.ReadLine();
-
-                                Console.WriteLine(">>> ENTER ISBN (NUMBER):");
-                                if (int.TryParse(Console.ReadLine(), out int isbn)) // Validering av input for å sikre at ISBN er et gyldig tall, og deretter spør om antall eksemplarer
+                                if (innloggetbruker.Rolle != "Bibliotekar") // Sjekker om den innloggede brukeren har rollen "Bibliotekar" før de får lov til å se utlånshistorikken, og gir en feilmelding hvis de ikke har riktig rolle
                                 {
-                                    // Spør om antall eksemplarer
-                                    Console.WriteLine(">>> ENTER NUMBER OF COPIES FOUND:");
-                                    if (int.TryParse(Console.ReadLine(), out int antall))
-                                    {
-                                        system.RegistrerBok(nyBokTittel, nyBokForfatter, nyBokÅr, isbn, antall);
-                                        Console.WriteLine(">>> DATA SLATE SUCCESSFULLY CATALOGED.");
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine(">>> ERROR: Amount must be a number!");
-                                    }
+                                    Console.WriteLine(">>> ACCESS DENIED. ONLY BIBLIOTHECARIANS CAN REVIEW DATA SLATE LOGS.");
+                                    break;
                                 }
                                 else
                                 {
-                                    Console.WriteLine(">>> ERROR: ISBN must be a number!");
+                                    Console.WriteLine($"ACCESS GRANTED. WELCOME {innloggetbruker.Navn} ");
+                                    system.VisHistorikk(); // Kaller VisHistorikk-metoden i Lexicanum-klassen for å vise historikken av bøkene (utlån)
+                                    Console.WriteLine("\n>>> END OF LOGS. PRESS ENTER TO RETURN.");
+                                    Console.ReadLine();
+                                    break;
                                 }
-                                break;
 
                             case "8":
+                                if (innloggetbruker.Rolle != "Bibliotekar") // Sjekker om den innloggede brukeren har rollen "Bibliotekar" før de får lov til å registrere en ny bok, og gir en feilmelding hvis de ikke har riktig rolle
+                                {
+                                    Console.WriteLine(">>> ACCESS DENIED. ONLY LIBRARIANS CAN CATALOG NEW KNOWLEDGE.");
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"ACCESS GRANTED. WELCOME {innloggetbruker.Navn} ");
+                                    Console.WriteLine(">>> ENTER NEWLY FOUND DATA SLATE TITLE:"); // Spør brukeren om informasjon for å registrere en ny bok i systemet, inkludert tittel, forfatter, utgivelsesår, ISBN og antall eksemplarer, og deretter kaller RegistrerBok-metoden i Lexicanum-klassen for å legge til boken i systemet
+                                    string nyBokTittel = Console.ReadLine();
+
+                                    Console.WriteLine(">>> ENTER AUTHOR:");
+                                    string nyBokForfatter = Console.ReadLine();
+                                    
+
+                                    Console.WriteLine(">>> ENTER YEAR:");
+                                    string nyBokÅr = Console.ReadLine();
+
+                                    Console.WriteLine(">>> ENTER ISBN (NUMBER):");
+                                    if (int.TryParse(Console.ReadLine(), out int isbn)) // Validering av input for å sikre at ISBN er et gyldig tall, og deretter spør om antall eksemplarer
+                                    {
+                                        // Spør om antall eksemplarer
+                                        Console.WriteLine(">>> ENTER NUMBER OF COPIES FOUND:");
+                                        if (int.TryParse(Console.ReadLine(), out int antall))
+                                        {
+                                            system.RegistrerBok(nyBokTittel, nyBokForfatter, nyBokÅr, isbn, antall);
+                                            Console.WriteLine(">>> DATA SLATE SUCCESSFULLY CATALOGED.");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(">>> ERROR: Amount must be a number!");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(">>> ERROR: ISBN must be a number!");
+                                    }
+                                    break;
+                                }
+
+                            case "9":
                                 Console.WriteLine(">>> SELECT ROLE TO INITIATE:"); // Spør brukeren om hvilken type bruker de ønsker å registrere, og deretter spør om relevant informasjon basert på valget, og kaller de respektive registreringsmetodene i Lexicanum-klassen for å legge til den nye brukeren i systemet
                                 Console.WriteLine("[1] Acolyte (Student)");
                                 Console.WriteLine("[2] External Acolyte (Utvekslingsstudent)");

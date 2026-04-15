@@ -32,12 +32,12 @@ public class Lexicanum
         RegistrerKurs(400, "Abominable Intelligence History", 10, 45);
 
 
-        // Lærer - (int id, string navn, string epost, string passord, string stilling, string avdeling)
-        RegistrerAnsatt(1001, "Dr. Magnus Aurelius", "Aurelius4Evar@Teach.com", "123", "Foreleser", "Foreleser");
+        // Ansatt - (int id, string navn, string epost, string passord, string stilling, string avdeling)
+        RegistrerAnsatt(1001, "Magnus Aurelius", "Aurelius4Evar@Teach.com", "123", "Faglærer", "Foreleser");
         AlleBrukere.Add(AlleLærere.Last());
-        RegistrerAnsatt(1002, "Professor Octavia Voss", "Voss@Teach.com", "123", "Bibliotekar", "Bibliotek");
+        RegistrerAnsatt(1002, "Octavia Voss", "Voss@Teach.com", "123", "Bibliotekar", "Bibliotek");
         AlleBrukere.Add(AlleLærere.Last());
-        RegistrerAnsatt(1003, "Dr. Lucius Blackwood", "LuciBlack@Teach.com", "123", "Fagansvarlig", "Administrasjon");
+        RegistrerAnsatt(1003, "Lucius Blackwood", "LuciBlack@Teach.com", "123", "Faglærer", "Administrasjon");
         AlleBrukere.Add(AlleLærere.Last());
 
 
