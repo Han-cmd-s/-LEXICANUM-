@@ -8,13 +8,13 @@ public class Bok //Bok-klassen har tittel, forfatter, utgivelsesår, ISBN og ant
 {
     public string Tittel { get; set; }
     public string Forfatter { get; set; }
-    public string Utgivelsesår { get; set; }
+    public int Utgivelsesår { get; set; }
     public int ISBN { get; set; }
     public int AntallEksemplarer { get; set; }
 
     public bool ErUtlånt { get; set; } = false;
 
-    public Bok(string tittel, string forfatter, string utgivelsesår, int isbn, int antallEksemplarer)
+    public Bok(string tittel, string forfatter, int utgivelsesår, int isbn, int antallEksemplarer)
     {
         Tittel = tittel;
         Forfatter = forfatter;

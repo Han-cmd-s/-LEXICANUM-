@@ -55,11 +55,11 @@ public class Lexicanum
         AlleBrukere.Add(AlleStudenter.Last());
 
 
-        //Bøker - (string tittel, string forfatter, string utgivelsesår, int isbn, int antallEksemplarer)
-        RegistrerBok("The History of Abominable Intelligence.", "Aurelius M", "12.08.90", 129834, 1);
-        RegistrerBok("Ancient Civilizations: A Comprehensive Guide.", "Dr. Magnus Aurelius", "05.03.85", 987654, 4);
-        RegistrerBok("The Rise and Fall of the Roman Empire.", "Aurelius M", "22.11.88", 123456, 5);
-        RegistrerBok("Medieval Europe: A Historical Overview.", "Dr. Magnus Aurelius", "15.07.92", 654321, 3);
+        //Bøker - (string tittel, string forfatter, int utgivelsesår, int isbn, int antallEksemplarer)
+        RegistrerBok("The History of Abominable Intelligence.", "Aurelius M", 1988, 129834, 1);
+        RegistrerBok("Ancient Civilizations: A Comprehensive Guide.", "Dr. Magnus Aurelius", 1985, 987654, 4);
+        RegistrerBok("The Rise and Fall of the Roman Empire.", "Aurelius M", 1988, 123456, 5);
+        RegistrerBok("Medieval Europe: A Historical Overview.", "Dr. Magnus Aurelius", 1992, 654321, 3);
 
         //Karakterer - (int studentId, int kursKode, string resultat)
         SettKarakter(2001, 300, "A");
@@ -97,8 +97,16 @@ public class Lexicanum
         AlleBrukere.Add(nyStudent);
     }
 
-    public void RegistrerBok(string tittel, string forfatter, string utgivelsesår, int isbn, int antallEksemplarer)
+    public void RegistrerBok(string tittel, string forfatter, int utgivelsesår, int isbn, int antallEksemplarer)
     {
+        if (antallEksemplarer < 0)
+        {
+            throw new Exception(">>> ERROR: Number of copies must be greater than zero!");
+        }
+        if (utgivelsesår > DateTime.Now.Year)
+        {
+            throw new Exception(">>> ERROR: Publication year cannot be in the future!");
+        }
         Bok nyBok = new Bok(tittel, forfatter, utgivelsesår, isbn, antallEksemplarer);
         AlleBøker.Add(nyBok);
     }

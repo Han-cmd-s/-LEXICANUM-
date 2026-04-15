@@ -377,7 +377,7 @@ class Program
                                     
 
                                     Console.WriteLine(">>> ENTER YEAR:");
-                                    string nyBokÅr = Console.ReadLine();
+                                    int nyBokÅr = int.Parse(Console.ReadLine());
 
                                     Console.WriteLine(">>> ENTER ISBN (NUMBER):");
                                     if (int.TryParse(Console.ReadLine(), out int isbn)) // Validering av input for å sikre at ISBN er et gyldig tall, og deretter spør om antall eksemplarer

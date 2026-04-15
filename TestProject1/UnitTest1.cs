@@ -49,5 +49,23 @@ namespace UnitTest1.Tests
             // Neste person som prøver skal få feil
             Assert.Throws<System.Exception>(() => system.LånBok(2002, tittel));
         }
+        //Test 5: Sjekker at systemet nekter å registrere en bok med negativ beholdning
+        [Fact]
+        public void RegistrerBok_ShouldThrowException_IfCountIsNegative()
+        {
+            var system = new Lexicanum();
+
+            // Sjekker at systemet nekter å registrere en bok med negativ beholdning
+            Assert.Throws<Exception>(() => system.RegistrerBok("Ulovlig bok", "Ukjent", 2024, 999, -5));
+        }
+        //Test 6: Sjekker at systemet nekter å registrere en bok med utgivelsesår i fremtiden
+        [Fact]
+        public void RegistrerBok_ShouldThrowException_IfyearisinFuture()
+        {
+            var system = new Lexicanum();
+
+            // Sjekker at systemet nekter å registrere en bok med utgivelsesår i fremtiden
+            Assert.Throws<Exception>(() => system.RegistrerBok("Ulovlig bok", "Ukjent", 2030, 999, 5));
+        }
     }
 }
