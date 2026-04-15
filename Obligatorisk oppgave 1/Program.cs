@@ -18,6 +18,9 @@ namespace Obligatorisk_oppgave_1;
 /// 
 /// v0.2
 /// Implementert innloggings system
+/// prosjekt test throws og andre endringer i lexicanum samt program.cs for å møte oppgave kriteriene, og for å gjøre det mer robust og brukervennlig, samt for å implementere en enkel form for tilgangskontroll basert på brukerroller, der forskjellige roller har tilgang til forskjellige funksjoner i terminalen.
+/// Føler meg derimot ikke ferdig med det nåværende programmet og har lyst å jobbe videre på det for å gjøre det mer komplett og robust
+/// 
 /// </summary>
 class Program
 {
