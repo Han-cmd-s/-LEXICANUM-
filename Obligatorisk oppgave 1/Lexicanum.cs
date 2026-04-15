@@ -21,8 +21,9 @@ public class Lexicanum
     public List<Kurs> AlleKurs = new List<Kurs>();
     public List<Bruker> AlleBrukere = new List<Bruker>();
     public List<Bok> AlleBøker = new List<Bok>();
-    public List<Ansatt> AlleLærere = new List<Ansatt>(); //Forandret til Ansatt fra Lærer som tilbakemelding ba om.
+    public List<Ansatt> AlleLærere = new List<Ansatt>();
     public List<Student> AlleStudenter = new List<Student>();
+    public List<string> KarakterOversikt = new List<string>();
     public List<string> UtlånsHistorikk = new List<string>();
 
     public Lexicanum()
@@ -59,11 +60,26 @@ public class Lexicanum
         RegistrerBok("Ancient Civilizations: A Comprehensive Guide.", "Dr. Magnus Aurelius", "05.03.85", 987654, 4);
         RegistrerBok("The Rise and Fall of the Roman Empire.", "Aurelius M", "22.11.88", 123456, 5);
         RegistrerBok("Medieval Europe: A Historical Overview.", "Dr. Magnus Aurelius", "15.07.92", 654321, 3);
+
+        //Karakterer - (int studentId, int kursKode, string resultat)
+        SettKarakter(2001, 300, "A");
+        SettKarakter(2002, 300, "B");
+        SettKarakter(2003, 300, "C");
+        SettKarakter(2001, 400, "A-");
+
+
     }
-     
+
     //Registreringsfunksjoner for å legge til data i listene. Brukes i konstruktøren, og kan også brukes senere for å legge til mer data.
     public void RegistrerKurs(int kode, string navn, int poeng, int maks)
     {
+        bool eksisterer = AlleKurs.Any(k => k.Kode == kode || k.Navn.Equals(navn, StringComparison.OrdinalIgnoreCase));
+
+        if (eksisterer)
+        {
+            Console.WriteLine($">>>ERROR<<< Protocol {kode} - {navn} already exists!");
+            return;
+        }
         Kurs nyttKurs = new Kurs(kode, navn, poeng, maks);
         AlleKurs.Add(nyttKurs);
     }
@@ -96,7 +112,37 @@ public class Lexicanum
     }
     //-------------------------Slutt av lister og liste-funksjoner. Funksjoner for menyen i Program.cs følger under------------------------------//
 
+    public void LeggTilPensum(int kurskode, string bokTittel)
+    {
+        var kurs = AlleKurs.FirstOrDefault(k => k.Kode == kurskode);
+        var bok = AlleBøker.FirstOrDefault(b => b.Tittel.Equals(bokTittel, StringComparison.OrdinalIgnoreCase));
 
+        if (kurs != null && bok != null)
+        {
+            kurs.Pensumliste.Add(bok);
+            Console.WriteLine($"Added {bok.Tittel} added as litterature for {kurs.Navn}. ");
+        }
+        else
+        {
+            Console.WriteLine("ERROR Couldnt find DataSlate and/or Course");
+        }
+    }
+
+    public void SettKarakter(int studentId, int kursKode, string karakter)
+    {
+        string[] gyldige = { "A", "B", "C", "D", "E", "F" };
+        if (!gyldige.Contains(karakter.ToUpper()))
+        {
+            Console.WriteLine(">>> ERROR: Invalid grade. Use A-F.");
+            return;
+        }
+        var student = AlleStudenter.FirstOrDefault(s => s.Id == studentId);
+        if (student != null &&  student.Kursliste.Any(k => k.Kode == kursKode))
+        {
+            KarakterOversikt.Add($"Student: {student.Navn} | Course: {kursKode} | Grade: {karakter}");
+            Console.WriteLine($"Grade Recorded: " + student.Navn + " received " + karakter + " in course " + kursKode);
+        }
+    }
     //Brukes av case "2"
     public void TildelKurs(int studentId, int kursKode)
     {

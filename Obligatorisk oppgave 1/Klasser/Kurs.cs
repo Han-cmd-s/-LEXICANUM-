@@ -10,6 +10,7 @@ public class Kurs //Kurs-klassen har kode, navn, poeng og maks antall studenter.
     public string Navn { get; set; }
     public int Poeng { get; set; }
     public int MaksStudenter { get; set; }
+    public List<Bok> Pensumliste { get; set; } = new List<Bok>();
     public Kurs(int kode, string navn, int poeng, int maks)
     {
         Kode = kode;
