@@ -65,7 +65,7 @@ public class Lexicanum
         SettKarakter(2001, 300, "A");
         SettKarakter(2002, 300, "B");
         SettKarakter(2003, 300, "C");
-        SettKarakter(2001, 400, "A-");
+        SettKarakter(2001, 400, "B");
 
 
     }
@@ -205,12 +205,47 @@ public class Lexicanum
         return output;
     }
 
-    public void VisTildelinger() // Viser hvilke kurs hver student er tildelt
+    public void VisTildelinger() //Oppdatert for å vise tildelinger i et mer lesbart format, inkludert kurs og pensum for hver student. Dette gir en bedre oversikt over hvilke kurs hver student er tildelt, og hvilke bøker som er pensum for disse kursene.
     {
         foreach (var s in AlleStudenter)
         {
-            Console.WriteLine($"{s.Navn} ASSIGNED TO:"); // Viser studentens navn og "ASSIGNED TO:" for å indikere at kursene som følger er de student er tildelt
-            foreach (var k in s.Kursliste) Console.WriteLine("- " + k.Navn); // Viser kursene hver student er tildelt, formatert med en bindestrek foran for å gjøre det mer lesbart
+            Console.WriteLine($"\n>>> {s.Navn.ToUpper()} (ID: {s.Id})");
+            foreach (var k in s.Kursliste)
+            {
+                Console.WriteLine($"- {k.Navn} ({k.Kode})");
+                // Viser pensum hvis det finnes
+                if (k.Pensumliste.Any())
+                {
+                    string pensum = string.Join(", ", k.Pensumliste.Select(b => b.Tittel));
+                    Console.WriteLine($"  [DATA SLATES: {pensum}]");
+                }
+            }
+        }
+    }
+    public void VisMinStatus(int studentId) // Viser en mer detaljert status for en student, inkludert hvilke kurs de er tildelt og hvilke karakterer de har fått. Dette gir studenten en klar oversikt over deres akademiske status i systemet.
+    {
+        var student = AlleStudenter.FirstOrDefault(s => s.Id == studentId);
+        if (student == null) return;
+
+        Console.WriteLine($"\n=== ARCHIVAL RECORD FOR {student.Navn.ToUpper()} ===");
+
+        Console.WriteLine("--- ENROLLED PROTOCOLS ---");
+        foreach (var k in student.Kursliste)
+        {
+            Console.WriteLine($"> {k.Navn} ({k.Kode}) - {k.Poeng} Points");
+        }
+
+        Console.WriteLine("\n--- COMPLETED EVALUATIONS ---");
+        
+        var mineKarakterer = KarakterOversikt.Where(linje => linje.Contains(student.Navn));
+
+        if (!mineKarakterer.Any())
+        {
+            Console.WriteLine(">>> NO EVALUATIONS RECORDED YET.");
+        }
+        else
+        {
+            foreach (var k in mineKarakterer) Console.WriteLine(k);
         }
     }
 

@@ -117,7 +117,7 @@ class Program
         while (fortsett) //starter en while-løkke som fortsetter å kjøre så lenge fortsett er true, og brytes når brukeren velger å avslutte programmet ved å skrive "0"
         {
             Console.WriteLine("=== ACCESSING LEXICANUM TERMINAL ==="); //menyen er skrevet er fantasert for å gi en mer intressang og tematisk opplevelse da jeg jobbet med koden, og for å gjøre det mer engasjerende for meg selv, og forhåpentligvis også for å gjøre det litt  morsomt for andre.
-            Console.WriteLine("[1] Register New Study Protocol [ONLY ACCESIBLE FOR ADEPTS]  (OpprettKurs)"); //lærer only
+            Console.WriteLine("[1] Study Protocols [ONLY ACCESIBLE FOR ADEPTS]  (OpprettKurs, legg til pensum)"); //lærer only
             Console.WriteLine("[2] Acolytes to and from Protocols (Sett Student inn i Kurs eller meld dem ut)"); //student only (husk å legg til kun innlogget student kan melde seg av kurs, og ingen andre kan melde av andre studenter)
             Console.WriteLine("[3] Manifest: Display Protocols & Initiates || Query Protocol Database (Vis deltakere og Kurs)");
             Console.WriteLine("[4] Search Data slates (Bøker)");
@@ -146,10 +146,13 @@ class Program
                             case "1":
                                 if (innloggetbruker.Rolle != "FagLærer")
                                 {
-                                    Console.WriteLine(">>> ACCESS DENIED. ONLY ADEPTS CAN REGISTER NEW STUDY PROTOCOLS.");
+                                    Console.WriteLine(">>> ACCESS DENIED. INNADEQUATE CLEARANCE LEVEL.");
                                     break;
                                 }
-                                else
+                                Console.WriteLine("[1] Register New Study Protocol | [2] Add Data Slate to existing Protocol");
+                                string kursValg = Console.ReadLine();
+                                
+                                if (kursValg == "1")
                                 {
                                     Console.WriteLine($"ACCESS GRANTED. WELCOME {innloggetbruker.Navn} ");
                                     Console.WriteLine(">>> ENTER COURSE CODE (NUMBER):");
@@ -164,12 +167,22 @@ class Program
                                         system.RegistrerKurs(kode, navn, poeng, maks);
                                         Console.WriteLine(">>> COURSE SUCCESSFULLY REGISTERED.");
                                     }
-                                    break;
+                                }
+                                else if (kursValg == "2")
+                                {
+                                    Console.WriteLine(">>> ENTER COURSE CODE TO ADD DATA SLATE TO:");
+                                    int pkurs = int.Parse(Console.ReadLine());
+                                    Console.WriteLine(">>> ENTER DATA SLATE TITLE TO ADD TO COURSE:");
+                                    string pbok = Console.ReadLine();
+                                    system.LeggTilPensum(pkurs, pbok);
+                                    Console.WriteLine(">>> DATA SLATE SUCCESSFULLY ADDED TO COURSE.");
                                 }
 
+                                break;
+
                             case "2":
-                                Console.WriteLine(">>> [1] Assign Acolyte to Protocol | [2] Remove Acolyte from Protocol"); // Spør brukeren om de vil tildele en student til et kurs eller melde dem av et kurs, og deretter spør om nødvendig informasjon for å utføre den valgte handlingen, og kaller de respektive metodene i Lexicanum-klassen for å håndtere tildeling eller avmelding
-                                string valgHandling = Console.ReadLine(); // for å definere hvilken handling som skal utføres (tildele eller melde av)
+                                Console.WriteLine(">>> [1] Assign Acolyte | [2] Remove Acolyte | [3] Record Evaluation [ADEPTS]");
+                                string valgHandling = Console.ReadLine();
 
                                 Console.WriteLine(">>> ENTER ACOLYTE ID:");
                                 if (int.TryParse(Console.ReadLine(), out int studentId))
@@ -177,35 +190,41 @@ class Program
                                     Console.WriteLine(">>> ENTER COURSE CODE:");
                                     if (int.TryParse(Console.ReadLine(), out int kursKode))
                                     {
-                                        if (valgHandling == "1")
+                                        if (valgHandling == "1") 
                                         {
-                                            system.TildelKurs(studentId, kursKode); // Kaller TildelKurs-metoden i Lexicanum-klassen for å tildele studenten til det angitte kurset
-                                            Console.WriteLine(">>> ACOLYTE SUCCESSFULLY ASSIGNED TO PROTOCOL.");
+                                            system.TildelKurs(studentId, kursKode);
                                         }
-                                        else if (valgHandling == "2")
+                                        else if (valgHandling == "2") 
                                         {
-                                            system.MeldAvKurs(studentId, kursKode); // Kaller MeldAvKurs-metoden i Lexicanum-klassen for å melde studenten av det angitte kurset
-                                            Console.WriteLine(">>> ACOLYTE SUCCESSFULLY REMOVED FROM PROTOCOL.");
+                                            // Sjekker student ID mot innlogget bruker for å sikre at en student kun kan melde seg av kurs de selv er tildelt, og ikke andre studenter, og gir en feilmelding hvis de prøver å melde av en annen student
+                                            if (innloggetbruker.Rolle == "Student" && innloggetbruker.Id != studentId)
+                                            {
+                                                Console.WriteLine(">>> ACCESS DENIED: You can only remove yourself from protocols.");
+                                            }
+                                            else
+                                            {
+                                                system.MeldAvKurs(studentId, kursKode);
+                                            }
                                         }
-                                        else
+                                        else if (valgHandling == "3") // Karakter gradering er kun tilgjengelig for lærere, og sjekker derfor om den innloggede bruker har rollen "FagLærer" før de får lov til å registrere en karakter, og gir en feilmelding hvis de ikke har riktig rolle
                                         {
-                                            Console.WriteLine(">>> INVALID ACTION SELECTED.");
+                                            if (innloggetbruker.Rolle == "FagLærer")
+                                            {
+                                                Console.Write(">>> ENTER GRADE (A-F): ");
+                                                string grad = Console.ReadLine();
+                                                system.SettKarakter(studentId, kursKode, grad);
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(">>> ACCESS DENIED: Only Adepts can record evaluations.");
+                                            }
                                         }
                                     }
-                                    else
-                                    {
-                                        Console.WriteLine(">>> ERROR: Course code must be a number!");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine(">>> ERROR: ID must be a number!");
                                 }
                                 break;
 
                             case "3":
-                                
-                                Console.WriteLine(">>> ENTER COURSE CODE TO SEARCH, ENTER [1] FOR ALL COURSES AND ASSIGNED ACOLYTES. ENTER [2] TO RETURN");
+                                Console.WriteLine(">>> [1] ALL PROTOCOLS | [2] RETURN | [3] MY PERSONAL RECORD | OR ENTER SEARCH TERM:");
                                 string kursSøk = Console.ReadLine();
 
                                 if (kursSøk == "2")
@@ -213,28 +232,42 @@ class Program
                                     Console.WriteLine(">>> RETURNING TO TERMINAL...");
                                     break;
                                 }
-
+                                // NYTT VALG: Studentens personlige oversikt
+                                else if (kursSøk == "3")
+                                {
+                                    if (innloggetbruker.Rolle == "Student")
+                                    {
+                                        system.VisMinStatus(innloggetbruker.Id);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(">>> ERROR: Personal records only available for Acolytes.");
+                                    }
+                                }
                                 else if (kursSøk == "1")
                                 {
                                     Console.WriteLine(">>> DISPLAYING ALL COURSES...");
-                                    Console.WriteLine("=== AVAILABLE PROTOCOLS ==="); // Viser en liste over alle tilgjengelige kurs/protokoller ved å kalle VisKurs-metoden i Lexicanum-klassen, og deretter viser en liste over alle tilgjengelige acolytes/studenter ved å kalle VisstudentListe
+                                    Console.WriteLine("=== AVAILABLE PROTOCOLS ===");
                                     Console.WriteLine(system.VisKurs());
 
-                                    Console.WriteLine("=== AVAILABLE ACOLYTES ===");
-                                    string studentListe = system.VisstudentListe();
-                                    Console.WriteLine(studentListe);
+                                    // Sikkerhet: Kanskje bare lærere skal se hele listen over alle studenter og alle tildelinger?
+                                    if (innloggetbruker.Rolle == "FagLærer" || innloggetbruker.Rolle == "Bibliotekar")
+                                    {
+                                        Console.WriteLine("=== AVAILABLE ACOLYTES ===");
+                                        Console.WriteLine(system.VisstudentListe());
 
-                                    Console.WriteLine("=== ASSIGNED ACOLYTES TO PROTOCOLS ===");
-                                    system.VisTildelinger();
-
-                                    Console.WriteLine("=== ALL AVAILABLE COURSES ===");
+                                        Console.WriteLine("=== ASSIGNED ACOLYTES TO PROTOCOLS ===");
+                                        system.VisTildelinger();
+                                    }
                                 }
                                 else
                                 {
+                                    // ... din eksisterende LINQ-søk-logikk her ...
                                     Console.WriteLine("<<COURSE RETREIVAL PROTOCOL INITIATED>>");
-                                    //LINQ system for søk av kurs beholder funksjonen med å vise en liste over kurs også.
                                     var kursTreff = system.AlleKurs.Where(k =>
-                                    string.IsNullOrEmpty(kursSøk) || k.Navn.Contains(kursSøk, StringComparison.OrdinalIgnoreCase) || k.Kode.ToString() == kursSøk).ToList();
+                                        string.IsNullOrEmpty(kursSøk) ||
+                                        k.Navn.Contains(kursSøk, StringComparison.OrdinalIgnoreCase) ||
+                                        k.Kode.ToString() == kursSøk).ToList();
 
                                     if (!kursTreff.Any())
                                     {
@@ -245,6 +278,12 @@ class Program
                                         foreach (var k in kursTreff)
                                         {
                                             Console.WriteLine($"[{k.Kode}] {k.Navn} - {k.Poeng} poeng (Max: {k.MaksStudenter})");
+
+                                            // Bonus: Vis pensum i søkeresultatet hvis det finnes!
+                                            if (k.Pensumliste.Any())
+                                            {
+                                                Console.WriteLine("   Pensum: " + string.Join(", ", k.Pensumliste.Select(b => b.Tittel)));
+                                            }
                                         }
                                     }
                                 }
@@ -324,7 +363,7 @@ class Program
                             case "8":
                                 if (innloggetbruker.Rolle != "Bibliotekar") // Sjekker om den innloggede brukeren har rollen "Bibliotekar" før de får lov til å registrere en ny bok, og gir en feilmelding hvis de ikke har riktig rolle
                                 {
-                                    Console.WriteLine(">>> ACCESS DENIED. ONLY LIBRARIANS CAN CATALOG NEW KNOWLEDGE.");
+                                    Console.WriteLine(">>> ACCESS DENIED. ONLY BIBLIOTHECARIANS CAN CATALOG NEW KNOWLEDGE.");
                                     break;
                                 }
                                 else
